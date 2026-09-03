@@ -240,6 +240,14 @@ jobs:
             fi
             rm $workdir/release.zip
             pm2 save
+            # Keep the active release and the three preceding releases for rollback.
+            find "$basedir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
+              | awk '/^[0-9]+$/' \
+              | sort -n \
+              | head -n -4 \
+              | while IFS= read -r release; do
+                  rm -rf -- "$basedir/$release"
+                done
             echo "Deployed successfully"
 
       - name: After deploy script
